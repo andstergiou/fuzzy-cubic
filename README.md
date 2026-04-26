@@ -24,7 +24,7 @@ $$\hat{H} = \hat{H}_{\mathrm{Hub}} + \hat{H}_{\mathrm{Heis}} + h\,\hat{H}_{\math
 |------|------|
 | $\hat{H}_{\mathrm{Hub}}$ | Flavour-agnostic density-density repulsion (Haldane pseudopotentials `[6.5, 1.0]`); enforces single occupancy per orbital |
 | $\hat{H}_{\mathrm{Heis}}$ | Heisenberg-like interaction via the orientation operator $\hat{\mathbf{n}}$, which connects the singlet and triplet flavours; realises the rotor-rotor coupling $\hat{\mathbf{n}}_i \cdot \hat{\mathbf{n}}_j$ on the fuzzy sphere (coupling fixed at 1.4) |
-| $h\,\hat{H}_{\mathrm{trans}}$ | Single-particle energy splitting between singlet and triplet flavours, corresponding to the kinetic term of the rotor model; `h` is tuned to reach the critical point |
+| $h\hat{H}_{\mathrm{trans}}$ | Single-particle energy splitting between singlet and triplet flavours, corresponding to the kinetic term of the rotor model; `h` is tuned to reach the critical point |
 | $\hat{H}_{\mathrm{cubic}}$ | Cubic anisotropy built from projectors $P^x, P^y, P^z$ onto the Cartesian triplet states $\|x\rangle, \|y\rangle, \|z\rangle$; breaks O(3) down to the cubic group; coupling `w` is the control parameter |
 
 ### Symmetry Sectors
