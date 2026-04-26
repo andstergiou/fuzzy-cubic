@@ -42,16 +42,17 @@ ED uses all 16 combinations of these four. DMRG uses only the 4 (Z, P2) sectors 
 
 ### Operators and Observables
 
-For each eigenstate we measure the energy E, angular momentum $L^2 = \ell(\ell+1)$, and SO(3) Casimir $C^2$. Six key operators are tracked:
+For each eigenstate we measure the energy E, angular momentum $L^2 = \ell(\ell+1)$, and SO(3) Casimir $C^2$. Seven key operators are tracked:
 
 | Operator | $\ell$ | $C^2$ | Degeneracy |
 |----------|--------|-------|------------|
 | $\phi$ | 0 | ≈ 2 | 3 |
 | $X$ | 0 | ≈ 6 | 2 |
 | $Z$ | 0 | ≈ 6 | 3 |
+| $S$ | 0 | ≈ 0 | 1 |
 | $A_\mu$ | 1 | ≈ 2 | 3 |
 | $T_{\mu\nu}$ | 2 | ≈ 0 | 1 |
-| $\epsilon'$ | 0 | ≈ 20 | 1 |
+| $S'$ | 0 | ≈ 20 | 1 |
 
 Energies are normalised so that $E_\mathrm{vac} = 0$ and $E_\phi = 0.5189$.
 
