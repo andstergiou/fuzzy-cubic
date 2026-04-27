@@ -26,6 +26,8 @@ preferred-citation:
       given-names: "Andreas"
       orcid: "https://orcid.org/0000-0002-5256-0822"
   title: "Quantum Rotors on the Fuzzy Sphere and the Cubic CFT"
-  doi: "10.48550/arXiv.2604.NNNNN"
-  journal: "arXiv preprint arXiv:2604.NNNNN"
-  year: 2026
+  eprint: "2604.xxxxx"
+  archivePrefix: "arXiv"
+  primaryClass: "cond-mat.str-el"
+  month: "4"
+  year: "2026"

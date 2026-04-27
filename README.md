@@ -203,7 +203,7 @@ If you use this code, please cite the paper
     title = "{Quantum Rotors on the Fuzzy Sphere and the Cubic CFT}",
     eprint = "2604.xxxxx",
     archivePrefix = "arXiv",
-    primaryClass = "hep-th",
+    primaryClass = "cond-mat.str-el",
     month = "4",
     year = "2026"
 }
