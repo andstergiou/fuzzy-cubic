@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the paper below."
+authors:
+  - family-names: "Stergiou"
+    given-names: "Andreas"
+    orcid: "https://orcid.org/0000-0002-5256-0822"
+title: "Fuzzy-Sphere Study of the Cubic CFT"
+## The MAIN citation (peer-reviewed)
+#preferred-citation:
+#  type: article
+#  authors:
+#    - family-names: "Stergiou"
+#      given-names: "Andreas"
+#  title: "Quantum Rotors on the Fuzzy Sphere and the Cubic CFT"
+#  doi: "10.1000/journal.article.doi"
+#  journal: "Journal of Open Research"
+#  year: 2026
+# ADDITIONAL references (preprint, related works, etc.)
+preferred-citation:
+#change to "references:" after peer review
+  - type: article
+    authors:
+      - family-names: "Stergiou"
+        given-names: "Andreas"
+    title: "Quantum Rotors on the Fuzzy Sphere and the Cubic CFT"
+    doi: "10.48550/arXiv.2604.NNNNN"
+    journal: "arXiv preprint arXiv:2604.NNNNN"
