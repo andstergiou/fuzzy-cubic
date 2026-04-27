@@ -4,7 +4,7 @@ This repository contains the Exact Diagonalisation (ED) and Density Matrix Renor
 
 > **Quantum Rotors on the Fuzzy Sphere and the Cubic CFT**  
 > Andreas Stergiou (2026)  
-> [arXiv:2604.xxxxx](https://arxiv.org/abs/2604.xxxxx)
+> [arXiv:2604.xxxxx [cond-mat.str-el]](https://arxiv.org/abs/2604.xxxxx)
 
 ## Physics Background
 
