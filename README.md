@@ -1,10 +1,14 @@
+[![arXiv](https://img.shields.io/badge/arXiv-2604.24840-b31b1b.svg?logo=arxiv&logoColor=white)](https://arxiv.org/abs/2604.24840)
+[![Julia](https://img.shields.io/badge/language-Julia-9558B2.svg?logo=julia&logoColor=white)](https://julialang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 # Fuzzy-Sphere Study of the Cubic CFT
 
 This repository contains the Exact Diagonalisation (ED) and Density Matrix Renormalisation Group (DMRG) code used in our study of the **cubic fixed point**, regularised on the fuzzy sphere, as described in
 
 > **Quantum Rotors on the Fuzzy Sphere and the Cubic CFT**  
 > Andreas Stergiou (2026)  
-> [arXiv:2604.xxxxx [cond-mat.str-el]](https://arxiv.org/abs/2604.xxxxx)
+> [arXiv:2604.24840 [cond-mat.str-el]](https://arxiv.org/abs/2604.24840)
 
 ## Physics Background
 
@@ -201,7 +205,7 @@ If you use this code, please cite the paper
 @article{Stergiou:2026jbw,
     author = "Stergiou, Andreas",
     title = "{Quantum Rotors on the Fuzzy Sphere and the Cubic CFT}",
-    eprint = "2604.xxxxx",
+    eprint = "2604.24840",
     archivePrefix = "arXiv",
     primaryClass = "cond-mat.str-el",
     month = "4",
