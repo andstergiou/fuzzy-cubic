@@ -1,4 +1,5 @@
 [![arXiv](https://img.shields.io/badge/arXiv-2604.24840-b31b1b.svg?logo=arxiv&logoColor=white)](https://arxiv.org/abs/2604.24840)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20343464.svg)](https://doi.org/10.5281/zenodo.20343464)
 [![Julia](https://img.shields.io/badge/language-Julia-9558B2.svg?logo=julia&logoColor=white)](https://julialang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
