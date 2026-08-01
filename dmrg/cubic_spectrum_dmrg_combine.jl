@@ -1,12 +1,12 @@
 # Combine DMRG results from all 4 sector jobs
 #
 # Usage:
-#   julia cubic_spectrum_dmrg_combine.jl [nm] [h] [w]
+#   julia cubic_spectrum_dmrg_combine.jl [nm] [w] [h]
 #
 # Arguments:
 #   nm: system size (default: 12)
-#   h:  polarization parameter (default: h_opt(nm, w), see ../hopt.jl)
 #   w:  cubic coupling (default: 0.6)
+#   h:  polarization parameter (default: h_opt(nm, w), see ../hopt.jl)
 #
 # Expects input files: dmrg_Z<Z>_P2<P2>_nm<nm>_w<w>_h<h>.dat for Z,P2 in {0,1}
 #
@@ -18,11 +18,9 @@ using Printf
 
 include(joinpath(@__DIR__, "..", "hopt.jl"))
 
-# Note the argument order: nm, h, w (w is parsed first so that it can supply
-# the default for h).
 nm = length(ARGS) >= 1 ? parse(Int,     ARGS[1]) : 12
-w  = length(ARGS) >= 3 ? parse(Float64, ARGS[3]) : 0.6
-h  = length(ARGS) >= 2 ? parse(Float64, ARGS[2]) : default_h(nm, w)
+w  = length(ARGS) >= 2 ? parse(Float64, ARGS[2]) : 0.6
+h  = length(ARGS) >= 3 ? parse(Float64, ARGS[3]) : default_h(nm, w)
 
 # Format h and w for filename matching
 h_str = replace(@sprintf("%.3f", h), "." => "p")

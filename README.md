@@ -164,11 +164,11 @@ julia cubic_spectrum_dmrg.jl   0 1     8     12 0.6 15.323
 julia cubic_spectrum_dmrg.jl   1 0     8     12 0.6 15.323
 julia cubic_spectrum_dmrg.jl   1 1     8     12 0.6 15.323
 
-# Step 3                                 nm    h     w
-julia cubic_spectrum_dmrg_combine.jl     12 15.323 0.6
+# Step 3                                 nm  w    h
+julia cubic_spectrum_dmrg_combine.jl     12 0.6 15.323
 ```
 
-Note that the combine script takes `h` before `w`, whereas the other two take `w` before `h`.
+All three take their arguments in the same order: `nm`, then `w`, then `h`.
 
 ### Adjusting parameters
 

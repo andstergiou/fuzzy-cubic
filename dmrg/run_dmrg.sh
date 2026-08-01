@@ -80,7 +80,7 @@ done
 # ── Step 3: Combine results ────────────────────────────────────────────────────
 echo ""
 echo "Step 3/3: Combining sector results..."
-julia --project=. cubic_spectrum_dmrg_combine.jl $NM $H $W
+julia --project=. cubic_spectrum_dmrg_combine.jl $NM $W $H
 
 echo ""
 echo "=============================================="
