@@ -5,8 +5,8 @@
 #
 # Arguments:
 #   nm: system size (default: 12)
-#   h:  mass parameter (default: auto-computed from nm)
-#   w:  cubic coupling (default: 0.2)
+#   h:  polarization parameter (default: h_opt(nm, w), see ../hopt.jl)
+#   w:  cubic coupling (default: 0.6)
 #
 # Expects input files: dmrg_Z<Z>_P2<P2>_nm<nm>_w<w>_h<h>.dat for Z,P2 in {0,1}
 #
@@ -16,10 +16,13 @@
 using Serialization
 using Printf
 
-nm = length(ARGS) >= 1 ? parse(Int, ARGS[1]) : 12
-h_default = 15.323
-h = length(ARGS) >= 2 ? parse(Float64, ARGS[2]) : h_default
-w = length(ARGS) >= 3 ? parse(Float64, ARGS[3]) : 0.6
+include(joinpath(@__DIR__, "..", "hopt.jl"))
+
+# Note the argument order: nm, h, w (w is parsed first so that it can supply
+# the default for h).
+nm = length(ARGS) >= 1 ? parse(Int,     ARGS[1]) : 12
+w  = length(ARGS) >= 3 ? parse(Float64, ARGS[3]) : 0.6
+h  = length(ARGS) >= 2 ? parse(Float64, ARGS[2]) : default_h(nm, w)
 
 # Format h and w for filename matching
 h_str = replace(@sprintf("%.3f", h), "." => "p")

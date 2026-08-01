@@ -74,9 +74,13 @@ $$h_{\mathrm{opt}}(n_m) = h_c + \frac{A}{n_m^{b/2}}$$
 | 0.6 | 14.955 | 24.69 | 3.39 |
 | 0.8 | 14.855 | 15.40 | 2.87 |
 
+These parameters, together with the table of optimised `h_opt(nm, w)` values actually used for the published spectra, live in `hopt.jl` and are shared by all the drivers. The tabulated values take precedence over the fit, which reproduces them only to about ±0.002.
+
 ## Repository Structure
 
 ```
+├── hopt.jl                      # Shared table of h_opt(nm, w) and its finite-size fit
+│
 ├── ed/
 │   └── cubic_spectrum_ed.jl     # Full ED: all 16 sectors, combined output
 │
@@ -86,6 +90,11 @@ $$h_{\mathrm{opt}}(n_m) = h_c + \frac{A}{n_m^{b/2}}$$
 │   ├── cubic_spectrum_dmrg_combine.jl    # Combine 4 sector results
 │   └── run_dmrg.sh                       # Convenience script: runs all three steps
 ```
+
+All drivers take `nm`, `w` and `h` on the command line. When `h` is omitted it is
+looked up in `hopt.jl`, which holds the tabulated optimal values used to produce
+the published spectra and falls back to the finite-size fit for system sizes that
+are not tabulated.
 
 ## Installation
 
@@ -112,14 +121,14 @@ julia cubic_spectrum_ed.jl [nm] [w] [h]
 |----------|---------|-------------|
 | `nm` | 8 | System size |
 | `w`  | 0.6 | Cubic anisotropy coupling |
-| `h`  | from fit | Polarisation parameter (auto-computed if omitted) |
+| `h`  | `default_h(nm, w)` | Polarisation parameter (looked up in `hopt.jl` if omitted) |
 
 **Example:**
 ```bash
 julia cubic_spectrum_ed.jl 12 0.6
 ```
 
-**Output:** `spectrum_nm12_w0p6.txt` — one row per degenerate multiplet, with columns `ScaledE | L2 | C2 | Degen | Irrep`.
+**Output:** `spectrum_nm12_w0p6_h15p323.txt` — one row per degenerate multiplet, with columns `ScaledE | L2 | C2 | Degen | Irrep`. The polarisation parameter appears in the filename so that a scan over `h` at fixed `(nm, w)` does not overwrite its own output.
 
 > **Runtime:** nm=8 takes a few seconds; nm=10 a few minutes; nm=12 up to ~30 minutes on a modern laptop.
 
@@ -129,12 +138,13 @@ The simplest way is via the shell script, which runs all three steps automatical
 
 ```bash
 cd dmrg/
-./run_dmrg.sh <nm> <w> <h> [n_states] [threads]
+./run_dmrg.sh <nm> <w> [h] [n_states] [threads]
 ```
 
 **Example:**
 ```bash
 ./run_dmrg.sh 12 0.6 15.323
+./run_dmrg.sh 12 0.6            # same thing; h is looked up in hopt.jl
 ```
 
 This runs in sequence:
@@ -145,22 +155,30 @@ This runs in sequence:
 You can also run the steps individually:
 
 ```bash
-# Step 1
-julia cubic_spectrum_dmrg_build_mpo.jl 12
+# Step 1                                     nm  w    h
+julia cubic_spectrum_dmrg_build_mpo.jl       12 0.6 15.323
 
-# Step 2 (one per sector)
-julia cubic_spectrum_dmrg.jl 0 0 8 12   # Z=0, P2=0
-julia cubic_spectrum_dmrg.jl 0 1 8 12   # Z=0, P2=1
-julia cubic_spectrum_dmrg.jl 1 0 8 12   # Z=1, P2=0
-julia cubic_spectrum_dmrg.jl 1 1 8 12   # Z=1, P2=1
+# Step 2 (one per sector)      Z P2 n_states nm  w    h
+julia cubic_spectrum_dmrg.jl   0 0     8     12 0.6 15.323
+julia cubic_spectrum_dmrg.jl   0 1     8     12 0.6 15.323
+julia cubic_spectrum_dmrg.jl   1 0     8     12 0.6 15.323
+julia cubic_spectrum_dmrg.jl   1 1     8     12 0.6 15.323
 
-# Step 3
-julia cubic_spectrum_dmrg_combine.jl 12 15.323 0.6
+# Step 3                                 nm    h     w
+julia cubic_spectrum_dmrg_combine.jl     12 15.323 0.6
 ```
+
+Note that the combine script takes `h` before `w`, whereas the other two take `w` before `h`.
 
 ### Adjusting parameters
 
-In `cubic_spectrum_dmrg_build_mpo.jl` and `cubic_spectrum_dmrg.jl`, the parameters `h` and `w` are set near the top of the file (lines ~28–29). Change these to match your target (nm, w) run.
+`nm`, `w` and `h` are command-line arguments to every script — no source editing is required. Omitting `h` selects the tabulated optimum for that `(nm, w)` from `hopt.jl`, so
+
+```bash
+./run_dmrg.sh 16 0.4        # h defaults to h_opt(16, 0.4) = 15.220
+```
+
+is equivalent to passing `15.220` explicitly. To run away from criticality — for instance to scan `h` and locate `h_opt` yourself — pass `h` explicitly; the value is encoded in every output and checkpoint filename, so runs at different `(w, h)` cannot overwrite or resume from each other.
 
 ### Key DMRG features
 

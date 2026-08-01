@@ -1,8 +1,14 @@
 # Build and cache MPOs for Cubic DMRG
-# Usage: julia cubic_spectrum_dmrg_build_mpo.jl [nm]
+# Usage: julia cubic_spectrum_dmrg_build_mpo.jl [nm] [w] [h]
+#
+# Arguments:
+#   nm : system size (default: 12)
+#   w  : cubic anisotropy coupling (default: 0.6)
+#   h  : polarization parameter (default: h_opt(nm, w), see ../hopt.jl)
 #
 # This script builds the Hamiltonian and observable MPOs and caches them
-# to disk. Run this BEFORE launching the DMRG sector jobs.
+# to disk. Run this BEFORE launching the DMRG sector jobs. If the cache
+# already exists it is left untouched.
 #
 # Output:
 #   mpo_cache_nm<nm>_w<w>_h<h>.jls
@@ -13,10 +19,14 @@ using LinearAlgebra
 using Serialization
 using Printf
 
+include(joinpath(@__DIR__, "..", "hopt.jl"))
+
 FuzzifiED.ElementType = Float64
 
 # Parse arguments
-nm = length(ARGS) >= 1 ? parse(Int, ARGS[1]) : 12
+nm = length(ARGS) >= 1 ? parse(Int,     ARGS[1]) : 12
+w  = length(ARGS) >= 2 ? parse(Float64, ARGS[2]) : 0.6
+h  = length(ARGS) >= 3 ? parse(Float64, ARGS[3]) : default_h(nm, w)
 
 println("="^60)
 println("Building MPO Cache for nm=$nm")
@@ -25,10 +35,20 @@ println("="^60)
 # Parameters
 nf = 4
 no = nm * nf
-h = 15.323  # Optimal h for nm=12, w=0.6 from DMRG optimization
-w = 0.6
 
 println("Model parameters: h=$(round(h, digits=4)), w=$w")
+
+# Cache filename; must match the one the DMRG driver looks for
+h_str = replace(@sprintf("%.3f", h), "." => "p")
+w_str = replace(string(w), "." => "p")
+cache_file = "mpo_cache_nm$(nm)_w$(w_str)_h$(h_str).jls"
+
+# Skip the (expensive) build if the cache is already present
+if isfile(cache_file)
+    println("\nMPO cache already exists: $cache_file")
+    println("Nothing to do.")
+    exit(0)
+end
 
 # Matrices for Hamiltonian
 mat_0 = diagm([0, 0, 0, 1.0])
@@ -80,11 +100,7 @@ println("  Done ($(round(time() - t_c2, digits=1))s)")
 total_time = time() - t_start
 println("\nTotal MPO build time: $(round(total_time, digits=1))s")
 
-# Save cache
-h_str = replace(@sprintf("%.3f", h), "." => "p")
-w_str = replace(string(w), "." => "p")
-cache_file = "mpo_cache_nm$(nm)_w$(w_str)_h$(h_str).jls"
-
+# Save cache (cache_file was computed above)
 println("\nSaving MPO cache to $cache_file...")
 serialize(cache_file, (
     nm = nm,

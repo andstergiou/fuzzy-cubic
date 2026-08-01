@@ -9,10 +9,10 @@
 # Arguments:
 #   nm  : system size (default: 8)
 #   w   : cubic anisotropy coupling (default: 0.6)
-#   h   : polarization parameter (default: auto from finite-size fit)
+#   h   : polarization parameter (default: h_opt(nm, w), see ../hopt.jl)
 #
 # Output:
-#   spectrum_nm<nm>_w<w>.txt   (scaled energies, quantum numbers, irrep labels)
+#   spectrum_nm<nm>_w<w>_h<h>.txt   (scaled energies, quantum numbers, irrep labels)
 #
 # Example:
 #   julia cubic_spectrum_ed.jl 12 0.2
@@ -22,16 +22,16 @@ using LinearAlgebra
 using Serialization
 using Printf
 
+include(joinpath(@__DIR__, "..", "hopt.jl"))
+
 FuzzifiED.ElementType = Float64
 
 # ── Parse arguments ────────────────────────────────────────────────────────────
-nm             = length(ARGS) >= 1 ? parse(Int,     ARGS[1]) : 8
-w = length(ARGS) >= 2 ? parse(Float64, ARGS[2]) : 0.6
+nm = length(ARGS) >= 1 ? parse(Int,     ARGS[1]) : 8
+w  = length(ARGS) >= 2 ? parse(Float64, ARGS[2]) : 0.6
 
-# Default h from finite-size fit: h_opt(nm) = h_c + A / nm^(b/2)
-# Fit parameters for w = 0.6: h_c=14.955, A=24.69, b=3.39
-h_default = 14.955 + 24.69 * nm^(-3.39/2)
-h          = length(ARGS) >= 3 ? parse(Float64, ARGS[3]) : h_default
+# Default h is the optimal value for this (nm, w); see ../hopt.jl
+h = length(ARGS) >= 3 ? parse(Float64, ARGS[3]) : default_h(nm, w)
 
 println("="^60)
 println("Cubic ED Spectrum")
@@ -163,7 +163,8 @@ unique_states = [label_cluster(c) for c in clusters]
 
 # ── Write output ───────────────────────────────────────────────────────────────
 w_str  = replace(string(w), "." => "p")
-outfile = "spectrum_nm$(nm)_w$(w_str).txt"
+h_str  = replace(@sprintf("%.3f", h), "." => "p")
+outfile = "spectrum_nm$(nm)_w$(w_str)_h$(h_str).txt"
 
 open(outfile, "w") do io
     println(io, "# Cubic ED Spectrum  nm=$nm  w=$w  h=$(round(h, digits=6))")

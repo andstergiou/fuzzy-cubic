@@ -1,13 +1,15 @@
 # Cubic DMRG — single symmetry sector
 #
 # Usage:
-#   julia cubic_spectrum_dmrg.jl [Z] [P2] [n_states] [nm] [--resume]
+#   julia cubic_spectrum_dmrg.jl [Z] [P2] [n_states] [nm] [w] [h] [--resume]
 #
 # Arguments:
 #   Z           : Total parity sector (0 or 1), default 0
 #   P2          : N2 parity sector (0 or 1), default 0
 #   n_states    : Number of states to compute, default 8
 #   nm          : System size, default 12
+#   w           : Cubic anisotropy coupling, default 0.6
+#   h           : Polarization parameter, default h_opt(nm, w) (see ../hopt.jl)
 #   --resume    : Resume from a previous checkpoint if interrupted
 #
 # Prerequisites:
@@ -30,6 +32,8 @@ using ITensors, ITensorMPS
 using LinearAlgebra
 using Serialization
 using Printf
+
+include(joinpath(@__DIR__, "..", "hopt.jl"))
 
 FuzzifiED.ElementType = Float64
 
@@ -74,10 +78,12 @@ end
 # 1. Parse Arguments
 resume_mode = "--resume" in ARGS
 numeric_args = filter(a -> !startswith(a, "-"), ARGS)
-target_Z  = length(numeric_args) > 0 ? parse(Int, numeric_args[1]) : 0
-target_P2 = length(numeric_args) > 1 ? parse(Int, numeric_args[2]) : 0
-n_states  = length(numeric_args) > 2 ? parse(Int, numeric_args[3]) : 1
-nm        = length(numeric_args) > 3 ? parse(Int, numeric_args[4]) : 12
+target_Z  = length(numeric_args) > 0 ? parse(Int,     numeric_args[1]) : 0
+target_P2 = length(numeric_args) > 1 ? parse(Int,     numeric_args[2]) : 0
+n_states  = length(numeric_args) > 2 ? parse(Int,     numeric_args[3]) : 1
+nm        = length(numeric_args) > 3 ? parse(Int,     numeric_args[4]) : 12
+w         = length(numeric_args) > 4 ? parse(Float64, numeric_args[5]) : 0.6
+h         = length(numeric_args) > 5 ? parse(Float64, numeric_args[6]) : default_h(nm, w)
 println("="^60)
 println("Cubic DMRG - Sector (Z=$target_Z, P2=$target_P2)")
 println("System size: nm=$nm | States to compute: $n_states")
@@ -86,11 +92,9 @@ if resume_mode
 end
 println("="^60)
 
-# 2. Parameters
+# 2. Parameters (w and h come from the command line; see section 1)
 nf = 4
 no = nm * nf
-h = 15.323  # Optimal h for nm=12, w=0.6 from DMRG optimization
-w = 0.6
 
 println("Model parameters: h=$(round(h, digits=4)), w=$w")
 
@@ -104,7 +108,7 @@ if !isfile(mpo_cache_file)
     MPO cache not found: $mpo_cache_file
 
     Run the MPO build script first:
-      julia --project=. cubic_spectrum_dmrg_build_mpo.jl $nm
+      julia --project=. cubic_spectrum_dmrg_build_mpo.jl $nm $w $h
 
     Or use run_dmrg.sh which handles both steps automatically.
     """)
@@ -113,6 +117,17 @@ end
 println("Loading cached MPOs from $mpo_cache_file...")
 t_load = time()
 mpo_cache = deserialize(mpo_cache_file)
+
+# Guard against a stale cache built with different parameters
+if mpo_cache.nm != nm || !isapprox(mpo_cache.w, w; atol = 1e-9) || !isapprox(mpo_cache.h, h; atol = 1e-9)
+    error("""
+    MPO cache parameter mismatch in $mpo_cache_file
+      cache:     nm=$(mpo_cache.nm), w=$(mpo_cache.w), h=$(mpo_cache.h)
+      requested: nm=$nm, w=$w, h=$h
+    Delete the cache file and rebuild it.
+    """)
+end
+
 sites = mpo_cache.sites
 hmt = mpo_cache.hmt
 l2_mpo = mpo_cache.l2_mpo
@@ -181,8 +196,10 @@ nsweeps, maxdim, cutoff, noise, energy_tol = get_dmrg_params(nm)
 println("DMRG params: nsweeps=$nsweeps, max_bond=$(maximum(maxdim)), cutoff=$cutoff, energy_tol=$energy_tol")
 
 # Checkpoint functions (using Julia Serialization)
+# Note: w and h are part of the name so that runs at different couplings or
+# different polarisation parameters cannot pick up each other's checkpoints.
 function checkpoint_filename(Z, P2, nm, state_n)
-    return "checkpoint_Z$(Z)_P2$(P2)_nm$(nm)_state$(state_n).jls"
+    return "checkpoint_Z$(Z)_P2$(P2)_nm$(nm)_w$(w_str)_h$(h_str)_state$(state_n).jls"
 end
 
 function save_checkpoint(filename, psi, sweep, energy, prev_energies, prev_entropies, converged_count)
@@ -202,7 +219,7 @@ end
 
 # Save/load completed state results for multi-state resume
 function completed_state_filename(Z, P2, nm, state_n)
-    return "completed_Z$(Z)_P2$(P2)_nm$(nm)_state$(state_n).jls"
+    return "completed_Z$(Z)_P2$(P2)_nm$(nm)_w$(w_str)_h$(h_str)_state$(state_n).jls"
 end
 
 function save_completed_state(Z, P2, nm, state_n, psi, E, L2, C2)
